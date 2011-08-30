@@ -1,4 +1,4 @@
-# gcs
+# This code is released into the public domain
 from __future__ import division
 import sys, math
 from hashlib import md5
