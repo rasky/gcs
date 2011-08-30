@@ -1,0 +1,16 @@
+Simple implementation of the Golomb Compressed Sets (GCS), a statistical
+compressed data-structure. It is similar to Bloom filters, but it is far more
+compact: given N elements, and P probability of a false positive, a Bloom
+filter  requires at least N*log2(e)*log2(1/P) bits, where GCS requires closer
+to N*log2(1/P). Given that log2(e) = 1.44..., it means that GCS are about
+44% smaller than an equivalent Bloom filter.
+
+The cons is of course speed: GCS is fully compressed so a query is an order of
+magnituted slower than Bloom filters. On the other hand, it is not required to
+decompress it fully in RAM, so it can be streamed. Thus, they make sense in an
+environment where queries are performed at interactive rate and RAM is scarce
+compared to the dataset.
+
+See these references for more details:
+http://www.imperialviolet.org/2011/04/29/filters.html
+http://algo2.iti.uni-karlsruhe.de/singler/publications/cacheefficientbloomfilters-wea2007.pdf
