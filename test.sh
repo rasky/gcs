@@ -1,5 +1,5 @@
 #!/bin/sh
 echo Building GCS...
-[ -f table.gcs ] || python gcs.py build samples/words.english
+[ -f table.gcs ] || python python/gcs.py build samples/words.english
 echo Querying GCS...
-python gcs.py query affect afect school skool circumvolution circumvollution
+python python/gcs.py query affect afect school skool circumvolution circumvollution
