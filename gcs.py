@@ -163,4 +163,6 @@ if __name__ == "__main__":
     elif sys.argv[1] == "query":
         gcs = GCSQuery(open("table.gcs","rb"))
         for w in sys.argv[2:]:
-            print gcs.query(w)
+            found = gcs.query(w)
+            print 'Querying for "%s": %s' % (w, "TRUE" if found else "FALSE")
+
