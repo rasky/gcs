@@ -11,7 +11,7 @@ class GCSBuilder
 
 public:
 	GCSBuilder(int N, int P);
-	void add(void *data, int size);
+	void add(const void *data, int size);
 	void finalize(std::ostream &f);
 };	
 

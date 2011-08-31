@@ -2,15 +2,16 @@
 #include "md5.h"
 #include "order32.h"
 #include <stdint.h>
+#include <string.h>
 #include <algorithm>
 
 #define BITMASK(n)    ((1 << (n)) - 1)
 
-static unsigned int gcs_hash(void *data, int size, int N, int P)
+static unsigned int gcs_hash(const void *data, int size, int N, int P)
 {
 	unsigned char digest[16];
-
 	MD5Context ctx;
+
 	MD5Init(&ctx);
 	MD5Update(&ctx, (unsigned char*)data, size);
 	MD5Final(digest, &ctx);
@@ -110,7 +111,7 @@ GCSBuilder::GCSBuilder(int _n, int _p)
 	values.push_back(0);
 }
 
-void GCSBuilder::add(void *data, int size)
+void GCSBuilder::add(const void *data, int size)
 {
 	unsigned h = gcs_hash(data, size, N, P);
 	values.push_back(h);
