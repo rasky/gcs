@@ -44,7 +44,7 @@ public:
 	{
 		while (nbits)
 		{
-			int nb = std::max(ACCUM_BITS-n, nbits);
+			int nb = std::min(ACCUM_BITS-n, nbits);
 			accum <<= nb;
 			value &= BITMASK(nbits);
 			accum |= value >> (nbits-nb);
