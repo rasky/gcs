@@ -29,6 +29,8 @@ static int floor_log2(int v)
 	return 32 - __builtin_clz(v-1);
 }
 
+/**************************************************************/
+
 class BitEncoder
 {
 private:
@@ -123,15 +125,22 @@ void GCSBuilder::finalize(std::ostream& f)
 
 	int v = O32_HOST_TO_BE(N);
 	f.write((char*)&v, 4);
-	v = O32_HOST_TO_BE(N);
+	v = O32_HOST_TO_BE(P);
 	f.write((char*)&v, 4);
 
 	GolombEncoder ge(f, P);
 	for (int i=0; i<(int)values.size()-1; ++i)
 	{
 		int diff = values[i+1] - values[i];
-		ge.encode(diff);
+		if (diff != 0)
+			ge.encode(diff);
 	}
 	ge.flush();
 }
+
+
+/**************************************************************/
+
+
+
 
