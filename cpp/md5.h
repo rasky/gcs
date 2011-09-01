@@ -19,7 +19,7 @@ struct MD5Context {
 
 
 void MD5Init(struct MD5Context *ctx);
-void MD5Update(struct MD5Context *ctx, unsigned char *buf, unsigned len);
+void MD5Update(struct MD5Context *ctx, const void *buf, unsigned len);
 void MD5Final(unsigned char digest[16], struct MD5Context *ctx);
 
 #ifdef __cplusplus
