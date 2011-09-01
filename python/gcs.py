@@ -98,7 +98,7 @@ def gcs_hash(w, (N,P)):
     default to MD5.
     """
     h = md5(w).hexdigest()
-    h = long(h,16)
+    h = long(h[24:32],16)
     return h % (N*P)
 
 class GCSBuilder:
@@ -113,7 +113,7 @@ class GCSBuilder:
 
     def finalize(self, f):
         values = sorted(self.values)
-        f.write(struct.pack("=LL", self.N, self.P))
+        f.write(struct.pack("!LL", self.N, self.P))
         f = golomb_enc(f, self.P)
         f.next()
         for i in range(len(values)-1):
@@ -126,7 +126,7 @@ class GCSBuilder:
 class GCSQuery:
     def __init__(self, f):
         self.f = f
-        self.N, self.P = struct.unpack("=LL", self.f.read(8))
+        self.N, self.P = struct.unpack("!LL", self.f.read(8))
 
     def _rewind(self):
         self.f.seek(8)
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         words = open(sys.argv[2]).readlines()
         gcs = GCSBuilder(len(words), prob)
         for w in words:
-            gcs.add(w.strip())
+            gcs.add(w)
         with open("table.gcs", "wb") as f:
             gcs.finalize(f)
             fsize = f.tell()
