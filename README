@@ -11,6 +11,11 @@ decompress it fully in RAM, so it can be streamed. Thus, they make sense in an
 environment where queries are performed at interactive rate and RAM is scarce
 compared to the dataset.
 
+The provided implementations are in Python and C++. They are fully equivalent,
+but the C++ implementation caches the GCS in memory, while the Python implementation
+streams it from disk. Examples of data sets (English and Italian dictionaries)
+are provided to play with them. See test.sh.
+
 See these references for more details:
 http://www.imperialviolet.org/2011/04/29/filters.html
 http://algo2.iti.uni-karlsruhe.de/singler/publications/cacheefficientbloomfilters-wea2007.pdf
