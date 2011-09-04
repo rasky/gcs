@@ -150,32 +150,58 @@ void GCSBuilder::finalize(std::ostream& f)
 class BitReader
 {
 private:
-	std::istream &f;
-	unsigned long accum;
+	uint8_t *data;
+	int len;
+	uint32_t accum;
 	int n;
 
 public:
-	BitReader(std::istream &f_)
-		: f(f_), accum(0), n(0)
+	BitReader(uint8_t *data_, int len_)
+		: data(data_), len(len_), accum(0), n(0)
 	{}
 
 	bool eof(void)
 	{
-		return f.eof();
+		return (len == 0 && n == 0);
 	}
 
-	unsigned int read(int nbits)
+	uint32_t read(int nbits)
 	{
-		while (n < nbits)
+		assert(nbits < 32);
+
+		uint32_t ret = 0;
+		while (nbits)
 		{
-			accum <<= 8;
-			accum |= f.get();
-			n += 8;
+			if (!n)
+			{
+				if (len > 4)
+				{
+					accum = ((uint32_t)data[0] << 24) |
+						((uint32_t)data[1] << 16) |
+						((uint32_t)data[2] << 8) |
+						((uint32_t)data[3]);
+					data += 4;
+					len -= 4;
+					n += 32;
+				}
+				else if (len > 0)
+				{
+					accum = *data++;
+					--len;
+					n += 8;
+				}
+				else
+					return 0;
+			}
+
+			int toread = std::min(n, nbits);
+			ret <<= toread;
+			ret |= (accum >> (n-toread));
+			n -= toread;
+			nbits -= toread;
+			accum &= BITMASK(n);
 		}
 
-		unsigned int ret = (accum >> (n-nbits));
-		n -= nbits;
-		accum &= BITMASK(n);
 		return ret;
 	}
 };
@@ -187,8 +213,8 @@ class GolombDecoder
 	int P, log2P;
 
 public:
-	GolombDecoder(std::istream &f_, int P_)
-		: f(f_), P(P_)
+	GolombDecoder(uint8_t *gcs, int len, int P_)
+		: f(gcs, len), P(P_)
 	{
 		log2P = floor_log2(P);
 	}
@@ -213,7 +239,7 @@ public:
 };
 
 GCSQuery::GCSQuery(std::istream &f_)
-	: f(f_)
+	: f(f_), gcs(NULL)
 {
 	int32_t v;
 
@@ -222,17 +248,27 @@ GCSQuery::GCSQuery(std::istream &f_)
 
 	f.read((char*)&v, 4);
 	P = O32_BE_TO_HOST(v);
+
+	f.seekg(0, std::ios::end);
+	int len = f.tellg();
+	f.seekg(8);
+
+	gcs_len = len-8;
+	gcs = new uint8_t[gcs_len];
+	f.read((char*)gcs, gcs_len);
+}
+
+GCSQuery::~GCSQuery()
+{
+	delete [] gcs;
 }
 
 bool GCSQuery::query(const void *data, int size)
 {
 	unsigned h = gcs_hash(data, size, N, P);
 	unsigned int value = 0;
-	
-	f.seekg(8);
-	f.clear();
-	
-	GolombDecoder gd(f, P);
+		
+	GolombDecoder gd(gcs, gcs_len, P);
 	while (!gd.eof())
 	{
 		unsigned int diff = gd.next();

@@ -21,9 +21,12 @@ class GCSQuery
 {
 	int N, P;
 	std::istream &f;
+	uint8_t *gcs;
+	int gcs_len;
 
 public:
 	GCSQuery(std::istream &f);
+	~GCSQuery();
 	bool query(const void *data, int size);
 };
 
