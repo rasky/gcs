@@ -11,6 +11,9 @@ decompress it fully in RAM, so it can be streamed. Thus, they make sense in an
 environment where queries are performed at interactive rate and RAM is scarce
 compared to the dataset.
 
+A full explanation of GCS can be found in my blog post on the subject:
+http://giovanni.bajo.it/2011/09/golomb-coded-sets/
+
 The provided implementations are in Python and C++. They are fully equivalent,
 but the C++ implementation caches the GCS in memory, while the Python implementation
 streams it from disk. Examples of data sets (English and Italian dictionaries)
