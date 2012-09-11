@@ -175,7 +175,7 @@ if __name__ == "__main__":
         words = open(sys.argv[2]).readlines()
         gcs = GCSBuilder(len(words), prob)
         for w in words:
-            gcs.add(w)
+            gcs.add(w.strip())
         with open("table.gcs", "wb") as f:
             gcs.finalize(f)
             fsize = f.tell()
