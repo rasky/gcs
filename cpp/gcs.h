@@ -26,6 +26,7 @@
 #ifndef GCS_H
 #define GCS_H
 
+#include <stdint.h>
 #include <vector>
 #include <iostream>
 
