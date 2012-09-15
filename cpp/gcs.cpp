@@ -139,7 +139,7 @@ public:
 GCSBuilder::GCSBuilder(int _n, int _p)
 	: N(_n), P(_p)
 {
-	assert(N*P <= ~(hash_t)0);
+	assert(N <= ~(hash_t)0 / P);
 	values.reserve(N);
 	values.push_back(0);
 }
