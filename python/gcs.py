@@ -52,7 +52,7 @@ def bitwriter(f):
             v &= 255
     except GeneratorExit:
         if n != 0:
-            v &= (1 << n) - 1
+            v = (v << (8-n)) & 255
             f.write(chr(v))
         raise
 
