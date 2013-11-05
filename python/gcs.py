@@ -28,6 +28,8 @@ import sys, math
 from hashlib import md5
 import struct
 from array import array
+import codecs
+import sys
 
 def bitwriter(f):
     """
@@ -172,7 +174,14 @@ class GCSQuery:
 if __name__ == "__main__":
     if sys.argv[1] == "build":
         prob = 2**10
-        words = open(sys.argv[2]).readlines()
+        try:
+            words = codecs.open(sys.argv[2], 'r', 
+                                encoding=sys.stdin.encoding).readlines()
+        except UnicodeDecodeError, e:
+            print "Warning: {0} encoding doesn't match stdin encoding ({1})".format(
+                sys.argv[2], sys.stdin.encoding)
+            words = codecs.open(sys.argv[2], 'r').readlines()
+
         gcs = GCSBuilder(len(words), prob)
         for w in words:
             gcs.add(w.strip())
