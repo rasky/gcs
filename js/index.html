@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="gcs">
+  <head>
+    <meta charset="utf-8">
+    <title>Golomb-coded sets in Javascript</title>
+    <style>
+        .rightcol {
+            width: 50%;
+            float: right;
+        }
+        .leftcol {
+            width: 50%;
+            float: left;
+        }
+        .vspan {
+            height: 100px;
+        }
+    </style>
+  </head>
+  <body ng-controller="EncodeDecodeCtrl">
+    <h1>Golomb-coded sets builder</h1>
+    <div>
+        <h2>Build the set</h2>
+        <div>
+            <label for="prob">False positive prob.</label>
+            1 / 2 ^ <input id="prob" type="number" ng-model="prob" min='1' max='32'> = 1 / {{ ext_prob }} = {{ 1/ext_prob|number:8 }}
+        </div>
+        <hr>
+        <div class="leftcol">
+            <h3>Add a word</h3>
+            <label for="word">Word to add:</label>
+            <input id="word"type="text" ng-model="word">
+            <button ng-click="add()">Add word</button>
+
+            <br>
+
+            <label for="autobuild">Autobuild:</label>
+            <input id="autobuild" type="checkbox" ng-model="autobuild"></input>
+            <button ng-click="build()" ng-disabled="autobuild">Build</button>
+            <br>
+
+            <p>Words: {{encoded_words.length}}, Set size: {{gcs.byteLength}} bytes</p>
+
+            <h3>Wordlist</h3>
+            <p>Click a word to delete</p>
+            <div ng-hide="encoded_words.length">Empty Wordlist!</div>
+            <ul>
+                <li ng-repeat="w in encoded_words"><a href="" ng-click="delete($index)">{{w}}</a></li>
+            </ul>
+        </div>
+        <div class="rightcol">
+            <h2>Query</h2>
+            <label for="query_word">Word to query:</label>
+            <input id="query_word" type="text" ng-model="query_word">
+            <button ng-click="query()">Query</button>
+            <h3 ng-show="found == true">Word found!</h3>
+            <h3 ng-show="found == false">Word not found!</h3>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.min.js" type="text/javascript"></script>
+    <script src="md5.js" type="text/javascript"></script>
+    <script src="gcs.js" type="text/javascript"></script>
+    <script>
+        angular.module('gcs', []).controller('EncodeDecodeCtrl',
+            ['$scope', function ($scope) {
+                var nato = ['alpha', 'bravo', 'charlie', 'delta', 'echo',
+                    'foxtrot', 'golf', 'hotel', 'india', 'juliett', 'kilo', 'lima', 'mike',
+                    'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform',
+                    'Victor', 'Whiskey', 'xray', 'yankee', 'zulu', 'dash'];
+
+                $scope.prob = 10;
+                $scope.autobuild = true;
+                $scope.encoded_words = angular.copy(nato)
+
+                $scope.$watch('prob', function (newval) {
+                    $scope.ext_prob = Math.pow(2, newval);
+                    if ($scope.autobuild) $scope.build();
+                })
+
+                $scope.$watchCollection('encoded_words', function () {
+                    if ($scope.autobuild) $scope.build();
+                })
+
+                $scope.$watch('autobuild', function (newval) {
+                    console.log(newval);
+                    if (newval) $scope.build();
+                })
+
+                $scope.add = function () {
+                    if (!$scope.word ||
+                        $scope.encoded_words.indexOf($scope.word) >= 0) {
+                        return;
+                    }
+                    $scope.encoded_words.push($scope.word);
+                    $scope.word = '';
+                }
+
+                $scope.build = function () {
+                    $scope.gcs = new GCSBuilder($scope.encoded_words.length, $scope.ext_prob);
+                    for (var i = 0; i < $scope.encoded_words.length; i += 1) {
+                      $scope.gcs.add($scope.encoded_words[i]);
+                    }
+                    $scope.gcs = $scope.gcs.finalize();
+                }
+
+                $scope.query = function () {
+                    if (!$scope.query_word) return;
+                    $scope.found = new GCSQuery($scope.gcs).query($scope.query_word);
+                }
+
+                $scope.delete = function (i) {
+                    $scope.encoded_words.splice(i, 1);
+                };
+            }]);
+
+    </script>
+  </body>
