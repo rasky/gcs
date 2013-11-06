@@ -7,6 +7,8 @@ function bitreader(arr) {
     return function c (n2) {
       /* Sorry, max 31 bits supported */
       while (n <= n2) {
+        if (offset >= arr.length)
+          throw "End of array";
         accum <<= 8;
         accum |= arr[offset++];
         n += 8;
