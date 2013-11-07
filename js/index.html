@@ -19,11 +19,12 @@
   </head>
   <body ng-controller="EncodeDecodeCtrl">
     <h1>Golomb-coded sets builder</h1>
-    <div>
+    <h2 ng-hide="loaded">Loading...</h2>
+    <div ng-cloak>
         <h2>Build the set</h2>
         <div>
             <label for="prob">False positive prob.</label>
-            1 / 2 ^ <input id="prob" type="number" ng-model="prob" min='1' max='32'> = 1 / {{ ext_prob }} = {{ 1/ext_prob|number:8 }}
+            1 / 2 ^ <input id="prob" type="number" ng-model="prob" min='1' max='31'> = 1 / {{ ext_prob }} = {{ 1/ext_prob|number:11 }}
         </div>
         <hr>
         <div class="leftcol">
@@ -39,7 +40,9 @@
             <button ng-click="build()" ng-disabled="autobuild">Build</button>
             <br>
 
-            <p>Words: {{encoded_words.length}}, Set size: {{gcs.byteLength}} bytes</p>
+            <p>Words: {{encoded_words.length}}, Set size: {{gcs.byteLength}} bytes 
+                <a href="{{download_url}}" ng-click="unsupported()">Download the set</a>
+            </p>
 
             <h3>Wordlist</h3>
             <p>Click a word to delete</p>
@@ -62,7 +65,10 @@
     <script src="md5.js" type="text/javascript"></script>
     <script src="gcs.js" type="text/javascript"></script>
     <script>
-        angular.module('gcs', []).controller('EncodeDecodeCtrl',
+        angular.module('gcs', []).config(['$compileProvider', function ($compileProvider) {
+            $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|blob):/);
+        }]).
+        controller('EncodeDecodeCtrl',
             ['$scope', function ($scope) {
                 var nato = ['alpha', 'bravo', 'charlie', 'delta', 'echo',
                     'foxtrot', 'golf', 'hotel', 'india', 'juliett', 'kilo', 'lima', 'mike',
@@ -102,6 +108,12 @@
                       $scope.gcs.add($scope.encoded_words[i]);
                     }
                     $scope.gcs = $scope.gcs.finalize();
+                    var blob = new Blob([$scope.gcs], {type: 'application/octet-stream'});
+                    try {
+                        $scope.download_url = URL.createObjectURL(blob);
+                    } catch (err) {
+                        $scope.download_url = '#unsupported';
+                    }
                 }
 
                 $scope.query = function () {
@@ -109,9 +121,18 @@
                     $scope.found = new GCSQuery($scope.gcs).query($scope.query_word);
                 }
 
+                $scope.unsupported = function () {
+                    if ($scope.download_url.indexOf('#unsupported') >= 0) {
+                        alert("Sorry your browser doesn't support this feature\n" +
+                          "Try with Chrome!");
+                    }
+                }
+
                 $scope.delete = function (i) {
                     $scope.encoded_words.splice(i, 1);
                 };
+
+                $scope.loaded = true;
             }]);
 
     </script>
