@@ -14,10 +14,13 @@ compared to the dataset.
 A full explanation of GCS can be found in my blog post on the subject:
 http://giovanni.bajo.it/2011/09/golomb-coded-sets/
 
-The provided implementations are in Python and C++. They are fully equivalent,
-but the C++ implementation caches the GCS in memory, while the Python implementation
-streams it from disk. Examples of data sets (English and Italian dictionaries)
-are provided to play with them. See test.sh.
+The provided implementations are in Python, C++ and Javascript. They are fully
+equivalent, but the C++ and JS implementations cache the GCS in memory, while
+the Python implementation streams it from disk. Examples of data sets (English
+and Italian dictionaries) are provided to play with them. See test.sh.
+
+Test live Javascript implementation here:
+http://cybercase.github.io/gcs/
 
 See these references for more details:
 http://www.imperialviolet.org/2011/04/29/filters.html
