@@ -1,5 +1,9 @@
 #!/bin/sh
 echo Building GCS...
-[ -f table.gcs ] || python python/gcs.py build samples/words.english
+python python/gcs.py build samples/words.english
 echo Querying GCS...
 python python/gcs.py query affect afect school skool circumvolution circumvollution
+echo Single Word Test
+python python/gcs.py build samples/password.word
+echo Quering GCS...
+python python/gcs.py query password
