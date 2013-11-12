@@ -119,7 +119,7 @@ function GCSBuilder(_N, _P) {
     values.sort(function (a, b) { return a - b; });
     for (i = 0; i < values.length - 1; i += 1) {
       d = values[i+1] - values[i];
-      if (d === 0) {
+      if (d === 0 && i > 0) {
         continue;
       }
       f(d);
