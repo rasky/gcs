@@ -5,7 +5,7 @@ function bitreader(arr) {
         v;
 
     return function c (n2) {
-      /* Sorry, only 24 bits supported */
+      /* Sorry, max 24 bits supported */
       while (n < n2) {
         if (offset >= arr.length)
           throw "End of array";
@@ -27,7 +27,7 @@ function bitwriter(arr) {
 
   function c (n2, v2) {
     while (1) {
-      /* Sorry, only 24 bits supported */
+      /* Sorry, max 24 bits supported */
       v <<= n2;
       v |= v2 & ((1 << n2) - 1);
 
