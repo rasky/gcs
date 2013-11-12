@@ -24,7 +24,7 @@
         <h2>Build the set</h2>
         <div>
             <label for="prob">False positive prob.</label>
-            1 / 2 ^ <input id="prob" type="number" ng-model="prob" min='1' max='31'> = 1 / {{ ext_prob }} = {{ 1/ext_prob|number:11 }}
+            1 / 2 ^ <input id="prob" type="number" ng-model="prob" min='1' max='24'> = 1 / {{ ext_prob }} = {{ 1/ext_prob|number:11 }}
         </div>
         <hr>
         <div class="leftcol">
@@ -114,6 +114,7 @@
                     } catch (err) {
                         $scope.download_url = '#unsupported';
                     }
+                    $scope.test();
                 }
 
                 $scope.query = function () {
@@ -126,6 +127,15 @@
                         alert("Sorry your browser doesn't support this feature\n" +
                           "Try with Chrome!");
                     }
+                }
+
+                $scope.test = function () {
+                    var c = 0,
+                        tmp = new GCSQuery($scope.gcs);
+                    angular.forEach($scope.encoded_words, function (w) {
+                        if (tmp.query(w)) c++;
+                    });
+                    console.log(c, 'out of', $scope.encoded_words.length);
                 }
 
                 $scope.delete = function (i) {

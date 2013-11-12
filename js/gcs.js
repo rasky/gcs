@@ -5,7 +5,7 @@ function bitreader(arr) {
         v;
 
     return function c (n2) {
-      /* Sorry, max 31 bits supported */
+      /* Sorry, only 24 bits supported */
       while (n <= n2) {
         if (offset >= arr.length)
           throw "End of array";
@@ -27,7 +27,7 @@ function bitwriter(arr) {
 
   function c (n2, v2) {
     while (1) {
-      /* Sorry, max 31 bits supported */
+      /* Sorry, only 24 bits supported */
       v <<= n2;
       v |= v2 & ((1 << n2) - 1);
 
@@ -53,8 +53,14 @@ function bitwriter(arr) {
 }
 
 function gcs_hash(w, N, P) {
+    /*  Due to current bitwriter/bitreader implementation, "h"
+        can't be greater or equal than 2^24 (25 bits).
+
+        This means that if N*P >= 2^24, the probability of
+        a false-positive can be greater than expected.
+    */
     h = md5(w);
-    h = parseInt(h.substring(24,32), 16) % (N*P);
+    h = parseInt(h.substring(24,32), 16) % Math.min(N*P, 16777216);
     return h;
 }
 
