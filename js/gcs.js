@@ -1,51 +1,53 @@
 function bitreader(arr) {
-    var offset = 0,
-        accum = 0,
-        n = 0,
-        v;
+  var offset = 0,
+      accum = 0,
+      n = 0;
 
-    return function c (n2) {
-      /* Sorry, max 24 bits supported */
-      while (n < n2) {
-        if (offset >= arr.length)
-          throw "End of array";
-        accum <<= 8;
-        accum |= arr[offset++];
+  function c (n2, v) {
+    if (typeof v === 'undefined') v = 0;
+    if (n2 > 8) {
+      v = v * 256 + c(8);
+      return c(n2-8, v);
+    } else {
+      n -= n2;
+      if (n < 0) {
+        if (offset >= arr.length) throw "End of array";
+        accum = (accum << 8) | arr[offset++];
         n += 8;
       }
-      v = (accum >>> (n-n2)) & ((1 << n2)-1);
-      n -= n2;
-      accum &= (1 << n)-1;
+      v = v * Math.pow(2, n2) + (accum >>> n);
+      accum &= (1 << n) - 1;
       return v;
-    };
+    }
+  }
+  return c;
 }
 
 function bitwriter(arr) {
-  var v = 0,
+  var accum = 0,
       n = 0,
-      b = 0;
-
+      tmp = 0;
   function c (n2, v2) {
-    while (1) {
-      /* Sorry, max 24 bits supported */
-      v <<= n2;
-      v |= v2 & ((1 << n2) - 1);
-
+    if (n2 > 8) {
+      n2 -= 8;
+      tmp = v2 / Math.pow(2, n2) >>> 0;
+      c(8, tmp);
+      c(n2, v2 - tmp * Math.pow(2, n2));
+    } else {
+      accum = accum * Math.pow(2, n2) + v2;
       n += n2;
-      while (n >= 8) {
-        b = (v >>> (n-8)) & 255;
-        arr.push(b);
+      if (n >= 8) {
+        arr.push(accum / Math.pow(2, n-8));
         n -= 8;
+        accum = accum & ((1 << n) - 1);
       }
-      v &= 255;
-      return;
     }
   }
 
   c.close = function () {
     if (n !== 0) {
-      v = (v << (8-n)) & 255;
-      arr.push(v);
+      accum = (accum << (8-n)) & 255;
+      arr.push(accum);
     }
   };
 
@@ -53,14 +55,8 @@ function bitwriter(arr) {
 }
 
 function gcs_hash(w, N, P) {
-    /*  Due to current bitwriter/bitreader implementation, "h"
-        can't be greater or equal than 2^24 (25 bits).
-
-        This means that if N*P >= 2^24, the probability of
-        a false-positive can be greater than expected.
-    */
     h = md5(w);
-    h = parseInt(h.substring(24,32), 16) % Math.min(N*P, 16777216);
+    h = parseInt(h.substring(24,32), 16) % (N*P);
     return h;
 }
 
