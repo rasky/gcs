@@ -1,3 +1,5 @@
+// Source code from: http://www.myersdaily.org/joseph/javascript/md5-text.html
+
 function md5cycle(x, k) {
 var a = x[0], b = x[1], c = x[2], d = x[3];
 
