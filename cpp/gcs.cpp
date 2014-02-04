@@ -31,10 +31,14 @@
 #include <algorithm>
 #include <assert.h>
 
-#define BITMASK(n)    ((1 << (n)) - 1)
+inline uint64_t BITMASK(unsigned int n) 
+{
+  assert(n < 63);
+  return     ((1ULL << (n)) - 1ULL);
+}
 
 
-static uint32_t gcs_hash(const void *data, int size, int N, int P)
+static uint32_t gcs_hash(const void *data, int size, unsigned int N, unsigned int P)
 {
 	unsigned char digest[16];
 	MD5Context ctx;
@@ -72,7 +76,7 @@ public:
 	BitWriter(std::ostream &_f)
 		: f(_f), accum(0), n(0) {}
 
-	void write(int nbits, unsigned value)
+	void write(int nbits, uint64_t value)
 	{
 		assert(nbits >= 0);
 		while (nbits)
@@ -136,7 +140,7 @@ public:
 };
 
 
-GCSBuilder::GCSBuilder(int _n, int _p)
+GCSBuilder::GCSBuilder(unsigned int _n, unsigned int _p)
 	: N(_n), P(_p)
 {
 	assert(N <= ~(hash_t)0 / P);

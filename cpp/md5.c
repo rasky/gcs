@@ -24,7 +24,6 @@
 
 static void byteReverse(unsigned char *buf, unsigned longs)
 {
-    uint32 t;
     do {
         *(uint32*)buf = O32_HOST_TO_LE(*(uint32*)buf);
         buf += 4;
