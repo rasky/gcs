@@ -63,22 +63,22 @@ def bitreader(f):
     Coroutine to read bits from a file-like.
     Use .send(N) to read N bits from the file.
     """
-    accum = 0
+    summer = 0
     n = 0
     v = None
     while 1:
         n2 = yield v
         while n <= n2:
-            accum <<= 8
+            summer <<= 8
             try:
-                accum |= ord(f.read(1))
+                summer |= ord(f.read(1))
             except TypeError:
                 # ord(None) => eof
                 return
             n += 8
-        v = (accum >> (n-n2)) & ((1<<n2)-1)
+        v = (summer >> (n-n2)) & ((1<<n2)-1)
         n -= n2
-        accum &= (1<<n)-1
+        summer &= (1<<n)-1
 
 
 def golomb_enc(f, P):
