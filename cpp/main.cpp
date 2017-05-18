@@ -24,13 +24,14 @@
 // For more information, please refer to <http://unlicense.org/>
 
 #include "gcs.h"
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 
 static void usage(void)
 {
 	std::cerr << "Usage:\n";
-	std::cerr << "   gcs build /path/to/wordlist\n";
+	std::cerr << "   gcs build /path/to/wordlist [false positive P (default 1024)]\n";
 	std::cerr << "   gcs query word1 [word2...]\n";
 }
 
@@ -45,11 +46,13 @@ int main(int argc, char *argv[])
 	std::string cmd(argv[1]);
 	if (cmd == "build")
 	{
-		if (argc != 3)
+		if (argc > 4)
 		{
 			usage();
 			return 1;
 		}
+
+		int p = (argc == 4) ? std::strtol(argv[3], NULL, 0) : 1024;
 
 		std::ifstream f(argv[2], std::ios::binary|std::ios::in);
 		if (!f.is_open())
@@ -67,7 +70,7 @@ int main(int argc, char *argv[])
 		f.seekg(0);
 		std::cout << "numwords: " << numwords << "\n";
 
-		GCSBuilder gcs(numwords, 1024);
+		GCSBuilder gcs(numwords, p);
 		while (std::getline(f,line), !f.eof())
 			gcs.add(line.data(), line.size());
 		f.close();
